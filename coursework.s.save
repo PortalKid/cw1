@@ -1,0 +1,40 @@
+.data
+privateKey: .string "DRAGON"
+.byte 0
+message: .string "attack at five past four tomorrow"
+
+
+.balign 4
+exitStr: .ascii "Exit program\n"
+outStr: .asciz 	"Output: %s\n"
+.text
+.global main
+main:
+	LDR r0, =message
+	BL strtolower		@ message.lower()
+	LDR r0, =privateKey
+	BL strtolower		@ privateKey.lower()
+	LDR r1, =message
+	LDR r0, =outStr
+	BL printf
+	@removing white space
+
+	@adding x's to the string
+	BX lr
+strtolower:
+	MOV R1, #0
+LOOP:
+	LDRB R2, [R0, R1]
+	CMP R2, #0		@ Compared to null
+	BXEQ LR			@ if null go to main
+	CMP R2, #0x20		@ Compare to space
+	BEQ LTA 		@ if letter = space then dont add to array
+	CMP R2, #0x41 		@ Compare to 'A'
+	BLT LTA			@ lowercase letter | also add to array
+	CMP R2, #0x5a		@ Compare to 'Z'
+	ADDLE R2, #0x20		@ letter = letter + 32 | lowercase capital character | also add to array
+
+LTA:				@ if not a capital
+	STRB R2, [R0, R1]
+	ADD R1, #1
+	B LOOP
